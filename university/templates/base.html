@@ -24,6 +24,7 @@
       </nav>
       <div class="topbar-left">
         <span class="user-chip">{{ session.get('admin_username', 'admin') }}</span>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.change_password') }}">تغییر رمز</a>
         <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn-ghost btn-sm">خروج</button>
@@ -40,7 +41,7 @@
         {% for category, message in messages %}
         <div class="alert alert-{{ category }}" data-autohide="1">
           <span>{{ message }}</span>
-          <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+          <button type="button" class="alert-close" data-close-alert aria-label="بستن">&times;</button>
         </div>
         {% endfor %}
       </div>
@@ -51,7 +52,7 @@
   </main>
 
   <footer class="footer">
-    <span>سامانه مدیریت دانشگاهی — ساخته‌شده با Python / Flask / SQLite</span>
+    <span>سامانه مدیریت دانشگاهی — ساخته‌شده با Python / Flask / SQLite — نسخه {{ config.get('APP_VERSION', '') }}</span>
     <span class="footer-year">{{ today_jalali() }}</span>
   </footer>
 

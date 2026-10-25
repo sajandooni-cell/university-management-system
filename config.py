@@ -1,5 +1,6 @@
 """پیکربندی برنامه - Config module"""
 import os
+from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -15,6 +16,7 @@ _ENV_DATABASE_OK = _ENV_DATABASE.startswith(
 class Config:
     """پیکربندی پیش‌فرض"""
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me-in-production")
+    APP_VERSION = "1.1.0"
     if _ENV_DATABASE_OK:
         SQLALCHEMY_DATABASE_URI = _ENV_DATABASE
     else:
@@ -27,6 +29,15 @@ class Config:
     AUTO_SEED = True
     # تعداد ردیف در هر صفحه
     PER_PAGE = 10
+
+    # امنیت نشست (Session)
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+
+    # محافظت در برابر حمله brute-force روی فرم ورود
+    LOGIN_MAX_ATTEMPTS = 5
+    LOGIN_LOCKOUT_SECONDS = 120
 
 
 class TestingConfig(Config):

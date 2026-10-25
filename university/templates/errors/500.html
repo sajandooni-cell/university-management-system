@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}خطای داخلی — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="error-page">
+  <div class="error-code">۵۰۰</div>
+  <h1>خطای داخلی سرور</h1>
+  <p class="page-sub">مشکلی در سمت سرور رخ داده است. لطفاً صفحه را دوباره بارگذاری کنید یا بعداً تلاش کنید.</p>
+  <a class="btn btn-primary"
+     href="{{ url_for('dashboard.index') if session.get('admin_id') else url_for('auth.login') }}">
+    بازگشت به سامانه
+  </a>
+</div>
+{% endblock %}

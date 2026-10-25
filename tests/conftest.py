@@ -31,6 +31,18 @@ def app(tmp_path):
         db.engine.dispose()
 
 
+@pytest.fixture(autouse=True)
+def _reset_login_throttle():
+    """ایزوله‌سازی شمارنده محافظت brute-force بین تست‌ها"""
+    from university.routes import auth as auth_routes
+
+    auth_routes._FAILED_LOGINS.clear()
+    auth_routes._LOCKED_UNTIL.clear()
+    yield
+    auth_routes._FAILED_LOGINS.clear()
+    auth_routes._LOCKED_UNTIL.clear()
+
+
 @pytest.fixture()
 def client(app):
     return app.test_client()

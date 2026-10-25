@@ -495,3 +495,21 @@ input:focus, select:focus {
   .card { box-shadow: none; border: none; padding: 0; }
   .stat-value { color: #000; }
 }
+
+/* ---------------- صفحات خطا (۴۰۰/۴۰۴/۵۰۰) ---------------- */
+.error-page {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+.error-code {
+  font-size: 5.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.error-page h1 { font-size: 22px; color: var(--primary); margin-bottom: 8px; }
+.error-page .page-sub { max-width: 480px; margin: 0 auto 24px; }
+.form-card.narrow { max-width: 480px; margin: 0 auto; }
+.form-card .form-field + .form-field { margin-top: 14px; }
