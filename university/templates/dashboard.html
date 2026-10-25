@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% from "macros.html" import score_badge, empty_state %}
+{% block title %}داشبورد — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>داشبورد</h1>
+    <p class="page-sub">نمای کلی وضعیت دانشگاه در یک نگاه</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="{{ url_for('students.add_student') }}">+ دانشجوی جدید</a>
+    <a class="btn" href="{{ url_for('grades.add_grade') }}">+ ثبت نمره</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card stat-navy">
+    <span class="stat-label">دانشجویان</span>
+    <span class="stat-value">{{ stats.students|fa }}</span>
+    <a class="stat-link" href="{{ url_for('students.list_students') }}">مشاهده لیست</a>
+  </div>
+  <div class="stat-card stat-blue">
+    <span class="stat-label">اساتید</span>
+    <span class="stat-value">{{ stats.teachers|fa }}</span>
+    <a class="stat-link" href="{{ url_for('teachers.list_teachers') }}">مشاهده لیست</a>
+  </div>
+  <div class="stat-card stat-teal">
+    <span class="stat-label">دروس</span>
+    <span class="stat-value">{{ stats.courses|fa }}</span>
+    <a class="stat-link" href="{{ url_for('courses.list_courses') }}">مشاهده لیست</a>
+  </div>
+  <div class="stat-card stat-amber">
+    <span class="stat-label">میانگین معدل کل</span>
+    <span class="stat-value">{{ stats.avg_gpa|fa if stats.avg_gpa is not none else '—' }}</span>
+    <span class="stat-link muted">از {{ stats.grades|fa }} نمره ثبت‌شده</span>
+  </div>
+</div>
+
+<div class="two-col">
+  <section class="card">
+    <div class="card-head">
+      <h2>آخرین نمرات ثبت‌شده</h2>
+      <a class="btn btn-sm" href="{{ url_for('grades.list_grades') }}">همه نمرات</a>
+    </div>
+    {% if recent_grades %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>دانشجو</th>
+            <th>درس</th>
+            <th>نمره</th>
+            <th>وضعیت</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for g in recent_grades %}
+          <tr>
+            <td>
+              <a class="row-link" href="{{ url_for('students.transcript', sid=g.student.id) }}">{{ g.student.full_name }}</a>
+              <div class="cell-sub">{{ g.student.student_number|fa }}</div>
+            </td>
+            <td>
+              {{ g.course.title }}
+              <div class="cell-sub">{{ g.course.credits|fa }} واحد</div>
+            </td>
+            <td>{{ score_badge(g.score) }}</td>
+            <td>{{ g.score|grade_letter }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    {{ empty_state('هنوز نمره‌ای ثبت نشده است.') }}
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>برترین دانشجویان</h2>
+      <span class="muted">بر اساس معدل وزنی</span>
+    </div>
+    {% if top_students %}
+    <ol class="rank-list">
+      {% for student, gpa in top_students %}
+      <li>
+        <span class="rank-num">{{ loop.index|fa }}</span>
+        <span class="rank-name">
+          <a class="row-link" href="{{ url_for('students.transcript', sid=student.id) }}">{{ student.full_name }}</a>
+          <div class="cell-sub">{{ student.major or '—' }}</div>
+        </span>
+        <span class="rank-score">{{ gpa|fa }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    {{ empty_state('هنوز معدلی محاسبه نشده است.') }}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

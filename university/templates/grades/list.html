@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination, score_badge, empty_state %}
+{% block title %}نمرات — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>لیست نمرات</h1>
+    <p class="page-sub">مجموع {{ pagination.total|fa }} نمره ثبت‌شده</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('grades.export_grades') }}">خروجی CSV</a>
+    <a class="btn btn-primary" href="{{ url_for('grades.add_grade') }}">+ ثبت نمره</a>
+  </div>
+</div>
+
+<div class="card">
+  <form class="filter-bar" method="get" action="{{ url_for('grades.list_grades') }}">
+    <input type="text" name="q" value="{{ q }}" placeholder="جستجو: نام دانشجو، شماره دانشجویی یا درس..." class="filter-input">
+    <select name="student_id" class="filter-select">
+      <option value="">همه دانشجویان</option>
+      {% for s in students %}
+      <option value="{{ s.id }}" {{ 'selected' if student_id == s.id|string }}>{{ s.full_name }} ({{ s.student_number|fa }})</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">اعمال</button>
+    {% if q or student_id %}
+    <a class="btn" href="{{ url_for('grades.list_grades') }}">حذف فیلترها</a>
+    {% endif %}
+  </form>
+
+  {% if pagination.items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>دانشجو</th>
+          <th>درس</th>
+          <th>واحد</th>
+          <th>نمره</th>
+          <th>ارزشیابی</th>
+          <th>نیمسال</th>
+          <th class="no-sort">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in pagination.items %}
+        <tr>
+          <td>
+            <a class="row-link" href="{{ url_for('students.transcript', sid=g.student.id) }}">{{ g.student.full_name }}</a>
+            <div class="cell-sub">{{ g.student.student_number|fa }}</div>
+          </td>
+          <td>
+            {{ g.course.title }}
+            <div class="cell-sub">{{ g.course.course_code }}</div>
+          </td>
+          <td>{{ g.course.credits|fa }}</td>
+          <td>{{ score_badge(g.score) }}</td>
+          <td>{{ g.score|grade_letter }}</td>
+          <td>{{ g.semester|fa if g.semester else '—' }}</td>
+          <td class="actions-cell">
+            <a class="btn btn-sm" href="{{ url_for('grades.edit_grade', gid=g.id) }}">ویرایش</a>
+            <form method="post" action="{{ url_for('grades.delete_grade', gid=g.id) }}" class="inline-form" data-confirm="آیا از حذف این نمره مطمئن هستید؟">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ render_pagination(pagination, 'grades.list_grades', params={'q': q, 'student_id': student_id}) }}
+  {% else %}
+  {{ empty_state('نمره‌ای با این مشخصات پیدا نشد.') }}
+  {% endif %}
+</div>
+{% endblock %}

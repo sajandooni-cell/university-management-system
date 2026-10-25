@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros.html" import score_badge %}
+{% block title %}کارنامه {{ student.full_name }} — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header no-print">
+  <div>
+    <h1>کارنامه تحصیلی</h1>
+    <p class="page-sub">تاریخ صدور: {{ today_jalali() }}</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn" onclick="window.print()">چاپ کارنامه</button>
+    <a class="btn" href="{{ url_for('students.list_students') }}">بازگشت به لیست</a>
+  </div>
+</div>
+
+<div class="card transcript-card">
+  <div class="transcript-head">
+    <h2>کارنامه تحصیلی دانشجو</h2>
+    <div class="transcript-info">
+      <div><span class="info-label">نام و نام خانوادگی:</span> {{ student.full_name }}</div>
+      <div><span class="info-label">شماره دانشجویی:</span> {{ student.student_number|fa }}</div>
+      <div><span class="info-label">رشته تحصیلی:</span> {{ student.major or '—' }}</div>
+      <div><span class="info-label">سال ورود:</span> {{ student.entry_year|fa if student.entry_year else '—' }}</div>
+      <div><span class="info-label">وضعیت:</span> <span class="badge badge-{{ student.status }}">{{ student.status|status_fa }}</span></div>
+    </div>
+  </div>
+
+  {% if grades %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>نیمسال</th>
+          <th>کد درس</th>
+          <th>عنوان درس</th>
+          <th>واحد</th>
+          <th>نمره</th>
+          <th>ارزشیابی</th>
+          <th>نتیجه</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in grades %}
+        <tr>
+          <td class="num-cell">{{ loop.index|fa }}</td>
+          <td>{{ g.semester|fa if g.semester else '—' }}</td>
+          <td class="num-cell">{{ g.course.course_code }}</td>
+          <td>{{ g.course.title }}</td>
+          <td>{{ g.course.credits|fa }}</td>
+          <td>{{ score_badge(g.score) }}</td>
+          <td>{{ g.score|grade_letter }}</td>
+          <td>
+            <span class="badge {{ 'badge-pass' if g.score >= 10 else 'badge-fail' }}">
+              {{ 'قبول' if g.score >= 10 else 'مردود' }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="transcript-summary">
+    <div class="summary-item">
+      <span class="summary-label">معدل وزنی</span>
+      <span class="summary-value">{{ student.gpa|fa }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">تعداد دروس</span>
+      <span class="summary-value">{{ grades|length|fa }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">واحدهای اخذشده</span>
+      <span class="summary-value">{{ total_credits|fa }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">دروس قبول‌شده</span>
+      <span class="summary-value">{{ passed_count|fa }}</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-title">هنوز نمره‌ای برای این دانشجو ثبت نشده است.</div>
+    <div class="empty-hint no-print"><a class="btn btn-primary" href="{{ url_for('grades.add_grade') }}">ثبت اولین نمره</a></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

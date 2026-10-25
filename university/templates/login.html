@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}ورود به سامانه{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-mark big">دان</span>
+    </div>
+    <h1 class="login-title">سامانه مدیریت دانشگاهی</h1>
+    <p class="login-subtitle">برای ورود، نام کاربری و رمز عبور مدیر را وارد کنید.</p>
+
+    <form method="post" action="{{ url_for('auth.login') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-field">
+        <label for="username">نام کاربری</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="form-field">
+        <label for="password">رمز عبور</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">ورود به سامانه</button>
+    </form>
+
+    <p class="login-hint">حساب پیش‌فرض: <code>admin</code> / <code>admin123</code></p>
+  </div>
+</div>
+{% endblock %}

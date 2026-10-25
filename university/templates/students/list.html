@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination, badge, empty_state %}
+{% block title %}دانشجویان — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>لیست دانشجویان</h1>
+    <p class="page-sub">مجموع {{ pagination.total|fa }} دانشجو</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('students.export_students', q=q, status=status) }}">خروجی CSV</a>
+    <a class="btn btn-primary" href="{{ url_for('students.add_student') }}">+ افزودن دانشجو</a>
+  </div>
+</div>
+
+<div class="card">
+  <form class="filter-bar" method="get" action="{{ url_for('students.list_students') }}">
+    <input type="text" name="q" value="{{ q }}" placeholder="جستجو: نام، شماره دانشجویی، کد ملی یا رشته..." class="filter-input">
+    <select name="status" class="filter-select">
+      <option value="">همه وضعیت‌ها</option>
+      {% for value, label in status_labels.items() %}
+      <option value="{{ value }}" {{ 'selected' if status == value }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">جستجو</button>
+    {% if q or status %}
+    <a class="btn" href="{{ url_for('students.list_students') }}">حذف فیلترها</a>
+    {% endif %}
+  </form>
+
+  {% if pagination.items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>شماره دانشجویی</th>
+          <th>نام و نام خانوادگی</th>
+          <th>رشته</th>
+          <th>سال ورود</th>
+          <th>معدل</th>
+          <th>وضعیت</th>
+          <th class="no-sort">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in pagination.items %}
+        <tr>
+          <td class="num-cell">{{ s.student_number|fa }}</td>
+          <td>
+            {{ s.full_name }}
+            <div class="cell-sub">{{ s.national_id|fa if s.national_id else '—' }}</div>
+          </td>
+          <td>{{ s.major or '—' }}</td>
+          <td>{{ s.entry_year|fa if s.entry_year else '—' }}</td>
+          <td>{{ s.gpa|fa if s.gpa is not none else '—' }}</td>
+          <td>{{ badge(s.status) }}</td>
+          <td class="actions-cell">
+            <a class="btn btn-sm" href="{{ url_for('students.transcript', sid=s.id) }}">کارنامه</a>
+            <a class="btn btn-sm" href="{{ url_for('students.edit_student', sid=s.id) }}">ویرایش</a>
+            <form method="post" action="{{ url_for('students.delete_student', sid=s.id) }}" class="inline-form" data-confirm="آیا از حذف «{{ s.full_name }}» و تمام نمرات او مطمئن هستید؟">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ render_pagination(pagination, 'students.list_students', params={'q': q, 'status': status}) }}
+  {% else %}
+  {{ empty_state('دانشجویی با این مشخصات پیدا نشد.') }}
+  {% endif %}
+</div>
+{% endblock %}

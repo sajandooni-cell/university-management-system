@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "macros.html" import field_error %}
+{% block title %}{{ 'ویرایش نمره' if item else 'ثبت نمره' }} — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ 'ویرایش نمره' if item else 'ثبت نمره جدید' }}</h1>
+    <p class="page-sub">معدل وزنی دانشجو پس از ذخیره به‌روزرسانی می‌شود.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('grades.list_grades') }}">بازگشت به لیست</a>
+  </div>
+</div>
+
+<div class="card form-card">
+  <form method="post"
+        action="{{ url_for('grades.edit_grade', gid=item.id) if item else url_for('grades.add_grade') }}"
+        novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="student_id">دانشجو *</label>
+        <select id="student_id" name="student_id" required>
+          <option value="">— انتخاب دانشجو —</option>
+          {% for s in students %}
+          <option value="{{ s.id }}"
+                  {{ 'selected' if (form.get('student_id') if form else (item.student_id|string if item else '')) == s.id|string }}>
+            {{ s.full_name }} ({{ s.student_number|fa }})
+          </option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'student_id') }}
+      </div>
+      <div class="form-field">
+        <label for="course_id">درس *</label>
+        <select id="course_id" name="course_id" required>
+          <option value="">— انتخاب درس —</option>
+          {% for c in courses %}
+          <option value="{{ c.id }}"
+                  {{ 'selected' if (form.get('course_id') if form else (item.course_id|string if item else '')) == c.id|string }}>
+            {{ c.title }} — {{ c.credits|fa }} واحد ({{ c.course_code }})
+          </option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'course_id') }}
+      </div>
+      <div class="form-field">
+        <label for="score">نمره (۰ تا ۲۰) *</label>
+        <input type="number" id="score" name="score" step="0.25" min="0" max="20"
+               value="{{ form.get('score') if form else (item.score if item else '') }}" required>
+        {{ field_error(errors, 'score') }}
+      </div>
+      <div class="form-field">
+        <label for="semester">نیمسال</label>
+        <select id="semester" name="semester">
+          <option value="">— نامشخص —</option>
+          {% for sem in semesters %}
+          <option value="{{ sem }}" {{ 'selected' if (form.get('semester') if form else (item.semester if item else '')) == sem }}>{{ sem|fa }}</option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'semester') }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">ذخیره نمره</button>
+      <a class="btn" href="{{ url_for('grades.list_grades') }}">انصراف</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

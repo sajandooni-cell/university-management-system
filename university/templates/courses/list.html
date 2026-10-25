@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination, empty_state %}
+{% block title %}دروس — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>لیست دروس</h1>
+    <p class="page-sub">مجموع {{ pagination.total|fa }} درس</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="{{ url_for('courses.add_course') }}">+ افزودن درس</a>
+  </div>
+</div>
+
+<div class="card">
+  <form class="filter-bar" method="get" action="{{ url_for('courses.list_courses') }}">
+    <input type="text" name="q" value="{{ q }}" placeholder="جستجو: عنوان درس، کد درس یا نیمسال..." class="filter-input">
+    <button type="submit" class="btn btn-primary">جستجو</button>
+    {% if q %}
+    <a class="btn" href="{{ url_for('courses.list_courses') }}">حذف فیلتر</a>
+    {% endif %}
+  </form>
+
+  {% if pagination.items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>کد درس</th>
+          <th>عنوان درس</th>
+          <th>واحد</th>
+          <th>استاد</th>
+          <th>نیمسال ارائه</th>
+          <th class="no-sort">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in pagination.items %}
+        <tr>
+          <td class="num-cell">{{ c.course_code }}</td>
+          <td>{{ c.title }}</td>
+          <td>{{ c.credits|fa }}</td>
+          <td>{{ c.teacher.full_name if c.teacher else '—' }}</td>
+          <td>{{ c.semester|fa if c.semester else '—' }}</td>
+          <td class="actions-cell">
+            <a class="btn btn-sm" href="{{ url_for('courses.edit_course', cid=c.id) }}">ویرایش</a>
+            <form method="post" action="{{ url_for('courses.delete_course', cid=c.id) }}" class="inline-form" data-confirm="آیا از حذف درس «{{ c.title }}» و نمرات مرتبط با آن مطمئن هستید؟">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ render_pagination(pagination, 'courses.list_courses', params={'q': q}) }}
+  {% else %}
+  {{ empty_state('درسی با این مشخصات پیدا نشد.') }}
+  {% endif %}
+</div>
+{% endblock %}

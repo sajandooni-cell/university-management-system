@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination, empty_state %}
+{% block title %}اساتید — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>لیست اساتید</h1>
+    <p class="page-sub">مجموع {{ pagination.total|fa }} استاد</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="{{ url_for('teachers.add_teacher') }}">+ افزودن استاد</a>
+  </div>
+</div>
+
+<div class="card">
+  <form class="filter-bar" method="get" action="{{ url_for('teachers.list_teachers') }}">
+    <input type="text" name="q" value="{{ q }}" placeholder="جستجو: نام، شماره استادی یا گروه..." class="filter-input">
+    <button type="submit" class="btn btn-primary">جستجو</button>
+    {% if q %}
+    <a class="btn" href="{{ url_for('teachers.list_teachers') }}">حذف فیلتر</a>
+    {% endif %}
+  </form>
+
+  {% if pagination.items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>شماره استادی</th>
+          <th>نام و نام خانوادگی</th>
+          <th>گروه آموزشی</th>
+          <th>موبایل</th>
+          <th>ایمیل</th>
+          <th>تعداد دروس</th>
+          <th class="no-sort">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in pagination.items %}
+        <tr>
+          <td class="num-cell">{{ t.teacher_number|fa }}</td>
+          <td>{{ t.full_name }}</td>
+          <td>{{ t.department or '—' }}</td>
+          <td>{{ t.phone|fa if t.phone else '—' }}</td>
+          <td class="ltr-cell">{{ t.email or '—' }}</td>
+          <td>{{ t.courses|length|fa }}</td>
+          <td class="actions-cell">
+            <a class="btn btn-sm" href="{{ url_for('teachers.edit_teacher', tid=t.id) }}">ویرایش</a>
+            <form method="post" action="{{ url_for('teachers.delete_teacher', tid=t.id) }}" class="inline-form" data-confirm="آیا از حذف «{{ t.full_name }}» مطمئن هستید؟ دروس او بدون استاد خواهند شد.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ render_pagination(pagination, 'teachers.list_teachers', params={'q': q}) }}
+  {% else %}
+  {{ empty_state('استادی با این مشخصات پیدا نشد.') }}
+  {% endif %}
+</div>
+{% endblock %}

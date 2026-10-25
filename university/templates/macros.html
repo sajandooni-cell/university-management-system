@@ -1,0 +1,54 @@
+{% macro page_url(endpoint, params, page) -%}
+{{ url_for(endpoint) }}?page={{ page }}{% for k, v in params.items() %}&{{ k }}={{ v|urlencode }}{% endfor %}
+{%- endmacro %}
+
+{% macro render_pagination(page_obj, endpoint, params={}) %}
+{% if page_obj.pages > 1 %}
+<nav class="pagination" aria-label="صفحه‌بندی">
+  {% if page_obj.has_prev %}
+  <a class="page-btn" href="{{ page_url(endpoint, params, page_obj.prev_num) }}">قبلی</a>
+  {% else %}
+  <span class="page-btn disabled">قبلی</span>
+  {% endif %}
+
+  {% for p in page_obj.iter_pages(left_edge=1, left_current=2, right_current=2, right_edge=1) %}
+    {% if p %}
+    <a class="page-btn {{ 'active' if p == page_obj.page }}" href="{{ page_url(endpoint, params, p) }}">{{ p|fa }}</a>
+    {% else %}
+    <span class="page-btn dots">…</span>
+    {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+  <a class="page-btn" href="{{ page_url(endpoint, params, page_obj.next_num) }}">بعدی</a>
+  {% else %}
+  <span class="page-btn disabled">بعدی</span>
+  {% endif %}
+</nav>
+{% endif %}
+{% endmacro %}
+
+{% macro field_error(errors, name) %}
+{% if errors and errors.get(name) %}
+<div class="field-error">{{ errors[name] }}</div>
+{% endif %}
+{% endmacro %}
+
+{% macro fv(form, item, attr) -%}
+{{- (form.get(attr) if form else (item[attr] if item else '')) or '' -}}
+{%- endmacro %}
+
+{% macro badge(status) %}
+<span class="badge badge-{{ status }}">{{ status|status_fa }}</span>
+{% endmacro %}
+
+{% macro score_badge(score) %}
+<span class="badge {{ 'badge-pass' if score >= 10 else 'badge-fail' }}">{{ score|fa }}</span>
+{% endmacro %}
+
+{% macro empty_state(message) %}
+<div class="empty-state">
+  <div class="empty-title">{{ message }}</div>
+  <div class="empty-hint">برای شروع، از دکمه «افزودن» استفاده کنید.</div>
+</div>
+{% endmacro %}

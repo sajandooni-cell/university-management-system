@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}سامانه مدیریت دانشگاهی{% endblock %}</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  {% if session.get('admin_id') %}
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('dashboard.index') }}">
+        <span class="brand-mark">دان</span>
+        <span class="brand-text">سامانه مدیریت دانشگاهی</span>
+      </a>
+      <nav class="main-nav">
+        <a href="{{ url_for('dashboard.index') }}" class="{{ 'active' if request.endpoint == 'dashboard.index' }}">داشبورد</a>
+        <a href="{{ url_for('students.list_students') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('students.') }}">دانشجویان</a>
+        <a href="{{ url_for('teachers.list_teachers') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('teachers.') }}">اساتید</a>
+        <a href="{{ url_for('courses.list_courses') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('courses.') }}">دروس</a>
+        <a href="{{ url_for('grades.list_grades') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('grades.') }}">نمرات</a>
+      </nav>
+      <div class="topbar-left">
+        <span class="user-chip">{{ session.get('admin_username', 'admin') }}</span>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-ghost btn-sm">خروج</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="container {% if not session.get('admin_id') %}full{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-area">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" data-autohide="1">
+          <span>{{ message }}</span>
+          <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>سامانه مدیریت دانشگاهی — ساخته‌شده با Python / Flask / SQLite</span>
+    <span class="footer-year">{{ today_jalali() }}</span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

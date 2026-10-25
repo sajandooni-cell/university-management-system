@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "macros.html" import field_error, fv %}
+{% block title %}{{ 'ویرایش درس' if item else 'افزودن درس' }} — سامانه مدیریت دانشگاهی{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ 'ویرایش درس' if item else 'افزودن درس جدید' }}</h1>
+    <p class="page-sub">{{ 'تغییرات را اعمال و ذخیره کنید.' if item else 'اطلاعات درس جدید را کامل کنید.' }}</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('courses.list_courses') }}">بازگشت به لیست</a>
+  </div>
+</div>
+
+<div class="card form-card">
+  <form method="post"
+        action="{{ url_for('courses.edit_course', cid=item.id) if item else url_for('courses.add_course') }}"
+        novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="course_code">کد درس *</label>
+        <input type="text" id="course_code" name="course_code" value="{{ fv(form, item, 'course_code') }}" dir="ltr" required>
+        {{ field_error(errors, 'course_code') }}
+      </div>
+      <div class="form-field">
+        <label for="title">عنوان درس *</label>
+        <input type="text" id="title" name="title" value="{{ fv(form, item, 'title') }}" required>
+        {{ field_error(errors, 'title') }}
+      </div>
+      <div class="form-field">
+        <label for="credits">تعداد واحد *</label>
+        <select id="credits" name="credits">
+          {% set current_credits = (form.get('credits') if form else (item.credits|string if item else '2')) %}
+          {% for cr in [1, 2, 3, 4, 5, 6] %}
+          <option value="{{ cr }}" {{ 'selected' if current_credits == cr|string }}>{{ cr|fa }}</option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'credits') }}
+      </div>
+      <div class="form-field">
+        <label for="teacher_id">استاد درس</label>
+        <select id="teacher_id" name="teacher_id">
+          <option value="">— بدون استاد —</option>
+          {% for t in teachers %}
+          <option value="{{ t.id }}" {{ 'selected' if (form.get('teacher_id') if form else (item.teacher_id|string if item else '')) == t.id|string }}>
+            {{ t.full_name }}
+          </option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'teacher_id') }}
+      </div>
+      <div class="form-field">
+        <label for="semester">نیمسال ارائه</label>
+        <select id="semester" name="semester">
+          <option value="">— نامشخص —</option>
+          {% for sem in semesters %}
+          <option value="{{ sem }}" {{ 'selected' if (form.get('semester') if form else (item.semester if item else '')) == sem }}>{{ sem|fa }}</option>
+          {% endfor %}
+        </select>
+        {{ field_error(errors, 'semester') }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">ذخیره اطلاعات</button>
+      <a class="btn" href="{{ url_for('courses.list_courses') }}">انصراف</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
